@@ -246,6 +246,9 @@ class DataReader:
                     meta["its"] = [[npz["its"]]]
                 else:
                     meta["its"] = npz["its"]
+            # itsがない場合は-999を入れる
+            elif "its" not in npz.files:
+                meta["its"] = [-999]
             if "station_id" in npz.files:
                 meta["station_id"] = npz["station_id"]
             if "sta_id" in npz.files:
@@ -687,10 +690,18 @@ class DataReader_train(DataReader):
 
         sample = normalize(sample)
         if np.random.random() < 0.95:
-            sample, itp_list, its_list, _ = self.random_shift(sample, itp_list, its_list, shift_range=self.shift_range)
-            sample, itp_list, its_list, _ = self.stack_events(sample, itp_list, its_list, shift_range=self.shift_range)
-            target = self.generate_label(sample, [itp_list, its_list])
-            sample, target, itp_list, its_list = self.cut_window(sample, target, itp_list, its_list, self.select_range)
+            if -999 in its_list:
+                its_list = itp_list
+                sample, itp_list, its_list, _ = self.random_shift(sample, itp_list, its_list, shift_range=self.shift_range)
+                sample, itp_list, its_list, _ = self.stack_events(sample, itp_list, its_list, shift_range=self.shift_range)
+                target = self.generate_label(sample, [itp_list])
+                sample, target, itp_list, its_list = self.cut_window(sample, target, itp_list, its_list, self.select_range)
+            else:
+                sample, itp_list, its_list, _ = self.random_shift(sample, itp_list, its_list, shift_range=self.shift_range)
+                sample, itp_list, its_list, _ = self.stack_events(sample, itp_list, its_list, shift_range=self.shift_range)
+                target = self.generate_label(sample, [itp_list, its_list])
+                sample, target, itp_list, its_list = self.cut_window(sample, target, itp_list, its_list, self.select_range)
+
         else:
             ## noise
             assert self.X_shape[0] <= min(min(itp_list))
