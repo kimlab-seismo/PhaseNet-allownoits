@@ -248,7 +248,7 @@ class DataReader:
                     meta["its"] = npz["its"]
             # itsがない場合は-999を入れる
             elif "its" not in npz.files:
-                meta["its"] = [-999]
+                meta["its"] = [[np.array(-999)]]
             if "station_id" in npz.files:
                 meta["station_id"] = npz["station_id"]
             if "sta_id" in npz.files:
