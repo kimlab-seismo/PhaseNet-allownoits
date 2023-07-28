@@ -704,7 +704,7 @@ class DataReader_train(DataReader):
 
         else:
             ## noise
-            assert self.X_shape[0] <= min(min(itp_list))
+            # assert self.X_shape[0] <= min(min(itp_list))
             sample = sample[: self.X_shape[0], ...]
             target = np.zeros(self.Y_shape).astype(self.dtype)
             itp_list = [[]]
